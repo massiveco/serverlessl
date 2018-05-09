@@ -9,7 +9,10 @@ import (
 //Handler processes signing requests from the serverlessl CLI
 func Handler(request sign.Request) (sign.Response, error) {
 
-	s := sign.New()
+	s, err := sign.New(nil)
+	if err != nil {
+		return sign.Response{}, err
+	}
 
 	cert, err := s.Sign(signer.SignRequest{
 		Request: string(request.CertificateRequest),

@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	main "github.com/massiveco/serverlessl/functions/sign"
+	main "github.com/massiveco/serverlessl/lambda/sign"
 	"github.com/massiveco/serverlessl/sign"
 	"github.com/stretchr/testify/assert"
 )

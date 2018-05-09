@@ -1,9 +1,9 @@
-package sign
+package initca
 
 import (
 	"bytes"
+	"fmt"
 	"io"
-	"net/http"
 	"os"
 
 	"github.com/cloudflare/cfssl/config"
@@ -11,25 +11,24 @@ import (
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/cloudflare/cfssl/signer/local"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
 var cfg config.Signing
 
-// Request signing
+//Request signing
 type Request struct {
 	CertificateRequest []byte `json:"certificateRequest"`
 	Profile            string `json:"profile"`
 }
 
-// Response from lambda
+//Response from lambda
 type Response struct {
 	Certificate []byte `json:"certificate"`
 }
 
-// Signer class for signing a cert
+//Signer class for signing a cert
 type Signer struct {
 	S3     *s3.S3
 	Config *config.Signing
@@ -37,26 +36,15 @@ type Signer struct {
 	Prefix string
 }
 
-// SignerConfig config the signer
+//SignerConfig config the signer
 type SignerConfig struct {
 }
 
-// New Signer
-func New(httpClient *http.Client) (Signer, error) {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-
-	session, err := session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{
-			HTTPClient: httpClient,
-		},
+//New Signer
+func New() Signer {
+	session := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
-	})
-	if err != nil {
-		return Signer{}, err
-	}
+	}))
 
 	return Signer{
 		S3:     s3.New(session),
@@ -70,10 +58,10 @@ func New(httpClient *http.Client) (Signer, error) {
 				ExpiryString: "8760h",
 			},
 		},
-	}, err
+	}
 }
 
-// Sign sign a request
+//Sign sign a request
 func (s Signer) Sign(req signer.SignRequest) ([]byte, error) {
 	caPem, caKey, err := s.fetchCA()
 	if err != nil {
@@ -105,8 +93,8 @@ func (s Signer) Sign(req signer.SignRequest) ([]byte, error) {
 
 func (s Signer) fetchCA() (cert, key []byte, err error) {
 
-	caKeyBuf := new(bytes.Buffer)
-	caCertBuf := new(bytes.Buffer)
+	caKeyBuf := bytes.NewBuffer(nil)
+	caCertBuf := bytes.NewBuffer(nil)
 
 	err = s.downloadFile("/ca.key", caKeyBuf)
 	if err != nil {
@@ -122,7 +110,7 @@ func (s Signer) fetchCA() (cert, key []byte, err error) {
 
 func (s Signer) downloadFile(filename string, buf *bytes.Buffer) error {
 
-	s3Key := s.Prefix + filename
+	s3Key := fmt.Sprintf("%s%s", s.Prefix, filename)
 	s3Object, err := s.S3.GetObject(&s3.GetObjectInput{
 		Bucket: &s.Bucket,
 		Key:    &s3Key,

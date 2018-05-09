@@ -1,9 +1,9 @@
 resource "aws_lambda_function" "sign" {
-  filename         = "../functions/sign/deployment.zip"
+  filename         = "../lambda/sign/deployment.zip"
   function_name    = "serverlesslSign-${var.ca_name}"
   role             = "${aws_iam_role.sign.arn}"
   handler          = "sign"
-  source_code_hash = "${base64sha256(file("../functions/sign/deployment.zip"))}"
+  source_code_hash = "${base64sha256(file("../lambda/sign/deployment.zip"))}"
   runtime          = "go1.x"
 
   environment {
