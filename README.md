@@ -6,7 +6,6 @@ Serverless PKI powered by cfssl
 
 # ALPHA
 
-- Remove cobra
 - InitCA
 - Support setting profiles
 
