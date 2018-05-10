@@ -2,18 +2,12 @@ package sign
 
 import (
 	"bytes"
-	"io"
-	"net/http"
-	"os"
 
 	"github.com/cloudflare/cfssl/config"
 	"github.com/cloudflare/cfssl/helpers"
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/cloudflare/cfssl/signer/local"
-
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/massiveco/serverlessl/store"
 )
 
 var cfg config.Signing
@@ -31,10 +25,8 @@ type Response struct {
 
 // Signer class for signing a cert
 type Signer struct {
-	S3     *s3.S3
-	Config *config.Signing
-	Bucket string
-	Prefix string
+	store  store.Store
+	signer *local.Signer
 }
 
 // SignerConfig config the signer
@@ -42,60 +34,46 @@ type SignerConfig struct {
 }
 
 // New Signer
-func New(httpClient *http.Client) (Signer, error) {
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func New(store store.Store) (Signer, error) {
+	caPem, caKey, err := fetchCA(store)
+	if err != nil {
+		return Signer{}, err
 	}
 
-	session, err := session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{
-			HTTPClient: httpClient,
+	ca, err := helpers.ParseCertificatePEM(caPem)
+	if err != nil {
+		return Signer{}, err
+	}
+
+	key, err := helpers.ParsePrivateKeyPEM(caKey)
+	if err != nil {
+		return Signer{}, err
+	}
+
+	cfg := config.Signing{
+		Default: &config.SigningProfile{
+			Expiry:       helpers.OneYear,
+			CAConstraint: config.CAConstraint{IsCA: false},
+			Usage:        []string{"signing", "key encipherment", "client auth"},
+			ExpiryString: "8760h",
 		},
-		SharedConfigState: session.SharedConfigEnable,
-	})
+	}
+
+	sign, err := local.NewSigner(key, ca, signer.DefaultSigAlgo(key), &cfg)
 	if err != nil {
 		return Signer{}, err
 	}
 
 	return Signer{
-		S3:     s3.New(session),
-		Prefix: os.Getenv("serverlessl_S3_PREFIX"),
-		Bucket: os.Getenv("serverlessl_S3_BUCKET"),
-		Config: &config.Signing{
-			Default: &config.SigningProfile{
-				Expiry:       helpers.OneYear,
-				CAConstraint: config.CAConstraint{IsCA: false},
-				Usage:        []string{"signing", "key encipherment", "client auth"},
-				ExpiryString: "8760h",
-			},
-		},
-	}, err
+		store:  store,
+		signer: sign,
+	}, nil
 }
 
 // Sign sign a request
 func (s Signer) Sign(req signer.SignRequest) ([]byte, error) {
-	caPem, caKey, err := s.fetchCA()
-	if err != nil {
-		return nil, err
-	}
 
-	ca, err := helpers.ParseCertificatePEM(caPem)
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := helpers.ParsePrivateKeyPEM(caKey)
-	if err != nil {
-		return nil, err
-	}
-
-	sign, err := local.NewSigner(key, ca, signer.DefaultSigAlgo(key), s.Config)
-	if err != nil {
-		return nil, err
-	}
-
-	cert, err := sign.Sign(req)
+	cert, err := s.signer.Sign(req)
 	if err != nil {
 		return nil, err
 	}
@@ -103,16 +81,16 @@ func (s Signer) Sign(req signer.SignRequest) ([]byte, error) {
 	return cert, nil
 }
 
-func (s Signer) fetchCA() (cert, key []byte, err error) {
+func fetchCA(store store.Store) (cert, key []byte, err error) {
 
 	caKeyBuf := new(bytes.Buffer)
 	caCertBuf := new(bytes.Buffer)
 
-	err = s.downloadFile("/ca.key", caKeyBuf)
+	err = store.FetchFile("/ca.key", caKeyBuf)
 	if err != nil {
 		return nil, nil, err
 	}
-	err = s.downloadFile("/ca.crt", caCertBuf)
+	err = store.FetchFile("/ca.crt", caCertBuf)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -120,21 +98,7 @@ func (s Signer) fetchCA() (cert, key []byte, err error) {
 	return caCertBuf.Bytes(), caKeyBuf.Bytes(), nil
 }
 
-func (s Signer) downloadFile(filename string, buf *bytes.Buffer) error {
+func (s Signer) fetchProfiles() (config.Signing, error) {
 
-	s3Key := s.Prefix + filename
-	s3Object, err := s.S3.GetObject(&s3.GetObjectInput{
-		Bucket: &s.Bucket,
-		Key:    &s3Key,
-	})
-	if err != nil {
-		return err
-	}
-
-	defer s3Object.Body.Close()
-	if _, err := io.Copy(buf, s3Object.Body); err != nil {
-		return err
-	}
-
-	return nil
+	return config.Signing{}, nil
 }
