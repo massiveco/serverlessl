@@ -1,0 +1,23 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10
+
+    working_directory: /go/src/github.com/massiveco/serverlessl
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-pkg-cache
+      - run:
+          name: Install dependencies
+          command: make install
+      - run:
+          name: Run unit tests
+          command: make test
+
+      - save_cache:
+          key: v1-pkg-cache
+          paths:
+            - "/go/pkg"
