@@ -71,6 +71,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 	}
 	req := sign.Request{
 		CertificateRequest: csrPEM,
+		Profile:            "sandwich",
 	}
 	resp, err := c.invokeLambda(req)
 	if err != nil {

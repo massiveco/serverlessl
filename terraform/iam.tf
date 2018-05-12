@@ -36,11 +36,63 @@ resource "aws_iam_policy" "sign" {
         "s3:GetObject"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.private.arn}/*"
+      "Resource": "${aws_s3_bucket.private.arn}/${var.ca_name}/*"
     }
   ]
 }
 EOF
+}
+
+resource "aws_iam_policy_attachment" "sign" {
+  name       = "sign-attachment"
+  roles      = ["${aws_iam_role.sign.name}"]
+  policy_arn = "${aws_iam_policy.sign.arn}"
+}
+
+resource "aws_iam_role" "init" {
+  name = "serverlessl_${var.ca_name}_init"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "init" {
+  name        = "serverlessl_${var.ca_name}_init"
+  description = "A policy for the serverlessl init functionality"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:PutObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "${aws_s3_bucket.private.arn}/${var.ca_name}/*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy_attachment" "init" {
+  name       = "init-attachment"
+  roles      = ["${aws_iam_role.init.name}"]
+  policy_arn = "${aws_iam_policy.init.arn}"
 }
 
 resource "aws_iam_policy" "requester" {
@@ -60,10 +112,4 @@ resource "aws_iam_policy" "requester" {
   ]
 }
 EOF
-}
-
-resource "aws_iam_policy_attachment" "sign" {
-  name       = "sign-attachment"
-  roles      = ["${aws_iam_role.sign.name}"]
-  policy_arn = "${aws_iam_policy.sign.arn}"
 }

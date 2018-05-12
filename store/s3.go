@@ -58,3 +58,16 @@ func (store S3) FetchFile(filename string, buf *bytes.Buffer) error {
 
 	return nil
 }
+
+// PutFile put a file into the S3 store
+func (store S3) PutFile(filename string, fileReader *bytes.Reader) error {
+	s3Key := store.Prefix + filename
+
+	_, err := store.client.PutObject(&s3.PutObjectInput{
+		Bucket: &store.Bucket,
+		Key:    &s3Key,
+		Body:   fileReader,
+	})
+
+	return err
+}
