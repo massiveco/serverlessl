@@ -31,12 +31,17 @@ func Generate(store store.Store) error {
 		}},
 	}
 
-	cert, _, key, err := initca.New(&csrRequest)
+	cert, csr, key, err := initca.New(&csrRequest)
 	if err != nil {
 		return err
 	}
 
 	err = store.PutFile("/ca.crt", bytes.NewReader(cert))
+	if err != nil {
+		return err
+	}
+
+	err = store.PutFile("/ca.csr", bytes.NewReader(csr))
 	if err != nil {
 		return err
 	}

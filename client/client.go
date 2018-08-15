@@ -14,8 +14,8 @@ var keyParam = csr.BasicKeyRequest{A: "rsa", S: 2048}
 
 //Client lambda PKI client
 type Client struct {
-	lambda *lambda.Lambda
-	config Config
+	lambdaSvc *lambda.Lambda
+	config    Config
 }
 
 //LambdaConfig Lambda function config
@@ -39,12 +39,13 @@ type CertificateDetails struct {
 //New create a new client
 func New(cfg Config) Client {
 
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
+	sharedSession := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
 	}))
+
 	client := Client{
-		lambda: lambda.New(sess, &aws.Config{Region: &cfg.Lambda.Region}),
-		config: cfg,
+		lambdaSvc: lambda.New(sharedSession, &aws.Config{Region: &cfg.Lambda.Region}),
+		config:    cfg,
 	}
 
 	return client
@@ -69,28 +70,20 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	req := sign.Request{
+	req, err := json.Marshal(sign.Request{
 		CertificateRequest: csrPEM,
 		Profile:            "sandwich",
+	})
+	if err != nil {
+		return nil, nil, nil, err
 	}
-	resp, err := c.invokeLambda(req)
+
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: &c.config.Lambda.Name, Payload: req})
 	if err != nil {
 		return nil, nil, nil, err
 	}
 
 	return csrPEM, keyPEM, resp.Payload, nil
-}
-
-func (c Client) invokeLambda(req sign.Request) (*lambda.InvokeOutput, error) {
-	payload, _ := json.Marshal(req)
-
-	resp, err := c.lambda.Invoke(&lambda.InvokeInput{FunctionName: &c.config.Lambda.Name, Payload: payload})
-	if err != nil {
-		return &lambda.InvokeOutput{}, err
-	}
-
-	return resp, nil
-
 }
 
 func noopValidator(req *csr.CertificateRequest) error {
