@@ -36,7 +36,7 @@ func Generate(store store.Store) error {
 		return err
 	}
 
-	err = store.PutFile("/ca.crt", bytes.NewReader(cert))
+	err = store.PutPublicFile("/ca.crt", bytes.NewReader(cert))
 	if err != nil {
 		return err
 	}
