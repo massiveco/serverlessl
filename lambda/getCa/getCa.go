@@ -10,6 +10,7 @@ import (
 )
 
 type initResponse struct {
+	Certificate string `json:"certificate,omitempty"`
 }
 
 var s3Store store.Store
@@ -26,11 +27,13 @@ func init() {
 // Handler processes signing requests from the serverlessl CLI
 func Handler(request sign.Request) (initResponse, error) {
 
-	err := sslinit.Generate(s3Store)
+	cert, err := sslinit.Generate(s3Store)
 	if err != nil {
 		return initResponse{}, err
 	}
-	return initResponse{}, nil
+	return initResponse{
+		Certificate: string(cert[:]),
+	}, nil
 }
 
 func main() {

@@ -43,6 +43,7 @@ func NewS3Store(httpClient *http.Client) (Store, error) {
 // FetchFile a file from s3
 func (store S3) FetchFile(filename string, buf *bytes.Buffer) error {
 	s3Key := store.Prefix + filename
+
 	s3Object, err := store.client.GetObject(&s3.GetObjectInput{
 		Bucket: &store.Bucket,
 		Key:    &s3Key,

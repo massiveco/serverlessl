@@ -18,7 +18,7 @@ var (
 )
 
 // Generate a serverlessl CA
-func Generate(store store.Store) error {
+func Generate(store store.Store) ([]byte, error) {
 
 	csrRequest := csr.CertificateRequest{
 		CN: caCommonName,
@@ -31,25 +31,34 @@ func Generate(store store.Store) error {
 		}},
 	}
 
+	caCertBuf := new(bytes.Buffer)
+
+	err := store.FetchFile("/ca.crt", caCertBuf)
+
+	if err == nil {
+
+		return caCertBuf.Bytes(), nil
+	}
+
 	cert, csr, key, err := initca.New(&csrRequest)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = store.PutPublicFile("/ca.crt", bytes.NewReader(cert))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = store.PutFile("/ca.csr", bytes.NewReader(csr))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	err = store.PutFile("/ca.key", bytes.NewReader(key))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return cert, nil
 }

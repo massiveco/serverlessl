@@ -1,10 +1,10 @@
-// role for serverlessl cainit, sign
+// role for serverlessl caget_ca, sign
 // write to s3 bucket, read from s3 bucket
 // role for requester
 // invoke lambda function
 
 resource "aws_iam_role" "sign" {
-  name = "serverlessl_${var.ca_name}_sign"
+  name = "slssl_${var.ca_name}_sign"
 
   assume_role_policy = <<EOF
 {
@@ -24,7 +24,7 @@ EOF
 }
 
 resource "aws_iam_policy" "sign" {
-  name        = "serverlessl_${var.ca_name}_sign"
+  name        = "slssl_${var.ca_name}_sign"
   description = "A policy for the serverlessl Sign functionality"
 
   policy = <<EOF
@@ -49,8 +49,8 @@ resource "aws_iam_policy_attachment" "sign" {
   policy_arn = "${aws_iam_policy.sign.arn}"
 }
 
-resource "aws_iam_role" "init" {
-  name = "serverlessl_${var.ca_name}_init"
+resource "aws_iam_role" "get_ca" {
+  name = "slssl_${var.ca_name}_get_ca"
 
   assume_role_policy = <<EOF
 {
@@ -69,9 +69,9 @@ resource "aws_iam_role" "init" {
 EOF
 }
 
-resource "aws_iam_policy" "init" {
-  name        = "serverlessl_${var.ca_name}_init"
-  description = "A policy for the serverlessl init functionality"
+resource "aws_iam_policy" "get_ca" {
+  name        = "slssl_${var.ca_name}_get_ca"
+  description = "A policy for the serverlessl get_ca functionality"
 
   policy = <<EOF
 {
@@ -89,14 +89,14 @@ resource "aws_iam_policy" "init" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "init" {
-  name       = "init-attachment"
-  roles      = ["${aws_iam_role.init.name}"]
-  policy_arn = "${aws_iam_policy.init.arn}"
+resource "aws_iam_policy_attachment" "get_ca" {
+  name       = "get_ca-attachment"
+  roles      = ["${aws_iam_role.get_ca.name}"]
+  policy_arn = "${aws_iam_policy.get_ca.arn}"
 }
 
 resource "aws_iam_policy" "requester" {
-  name        = "serverlessl_${var.ca_name}_requester"
+  name        = "slssl_${var.ca_name}_requester"
   path        = "/"
   description = "Policies for consumers of the serverlessl lambda"
 
