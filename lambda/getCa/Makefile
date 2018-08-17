@@ -4,10 +4,12 @@ serverlessl_FUNCTION=serverlesslGetCa
 serverlessl_S3_BUCKET=serverlessl
 serverlessl_S3_PREFIX=etcd/
 
-deployment.zip: getCa.go
-	go build -o getCa
-	zip deployment.zip getCa
-	rm getCa
+deployment.zip:
+	go build -o get_ca
+	zip deployment.zip get_ca
+	rm get_ca
 
 clean:
-	rm deployment.zip getCa
+	rm deployment.zip get_ca
+
+.PHONY: deployment.zip

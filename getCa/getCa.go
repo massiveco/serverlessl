@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	caCommonName = os.Getenv("SERVERLESSL_CA_NAME")
-	caGroup      = os.Getenv("SERVERLESSL_CA_GROUP")
-	caCountry    = os.Getenv("SERVERLESSL_CA_COUNTRY")
-	caCity       = os.Getenv("SERVERLESSL_CA_CITY")
-	caState      = os.Getenv("SERVERLESSL_CA_STATE")
+	caCommonName = os.Getenv("slssl_CA_NAME")
+	caGroup      = os.Getenv("slssl_CA_GROUP")
+	caCountry    = os.Getenv("slssl_CA_COUNTRY")
+	caCity       = os.Getenv("slssl_CA_CITY")
+	caState      = os.Getenv("slssl_CA_STATE")
 )
 
 // Generate a serverlessl CA
@@ -32,11 +32,9 @@ func Generate(store store.Store) ([]byte, error) {
 	}
 
 	caCertBuf := new(bytes.Buffer)
-
 	err := store.FetchFile("/ca.crt", caCertBuf)
 
 	if err == nil {
-
 		return caCertBuf.Bytes(), nil
 	}
 
@@ -45,7 +43,7 @@ func Generate(store store.Store) ([]byte, error) {
 		return nil, err
 	}
 
-	err = store.PutPublicFile("/ca.crt", bytes.NewReader(cert))
+	err = store.PutFile("/ca.crt", bytes.NewReader(cert))
 	if err != nil {
 		return nil, err
 	}

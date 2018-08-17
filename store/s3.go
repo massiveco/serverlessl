@@ -35,8 +35,8 @@ func NewS3Store(httpClient *http.Client) (Store, error) {
 	}
 	return S3{
 		client: s3.New(session),
-		Prefix: os.Getenv("serverlessl_S3_PREFIX"),
-		Bucket: os.Getenv("serverlessl_S3_BUCKET"),
+		Prefix: os.Getenv("slssl_S3_PREFIX"),
+		Bucket: os.Getenv("slssl_S3_BUCKET"),
 	}, nil
 }
 
@@ -65,20 +65,6 @@ func (store S3) PutFile(filename string, fileReader *bytes.Reader) error {
 	s3Key := store.Prefix + filename
 
 	_, err := store.client.PutObject(&s3.PutObjectInput{
-		Bucket: &store.Bucket,
-		Key:    &s3Key,
-		Body:   fileReader,
-	})
-
-	return err
-}
-
-// PutPublicFile put a file into the S3 store with public access
-func (store S3) PutPublicFile(filename string, fileReader *bytes.Reader) error {
-	s3Key := store.Prefix + filename
-	acl := "public-read"
-	_, err := store.client.PutObject(&s3.PutObjectInput{
-		ACL:    &acl,
 		Bucket: &store.Bucket,
 		Key:    &s3Key,
 		Body:   fileReader,

@@ -1,15 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-lambda-go/lambda"
-	sslinit "github.com/massiveco/serverlessl/init"
+	sslinit "github.com/massiveco/serverlessl/getCa"
 	"github.com/massiveco/serverlessl/sign"
 	"github.com/massiveco/serverlessl/store"
 )
 
-type initResponse struct {
+// InitResponse response containing the existing or newly created CA
+type InitResponse struct {
 	Certificate string `json:"certificate,omitempty"`
 }
 
@@ -25,13 +27,14 @@ func init() {
 }
 
 // Handler processes signing requests from the serverlessl CLI
-func Handler(request sign.Request) (initResponse, error) {
+func Handler(request sign.Request) (InitResponse, error) {
 
 	cert, err := sslinit.Generate(s3Store)
 	if err != nil {
-		return initResponse{}, err
+		return InitResponse{}, err
 	}
-	return initResponse{
+
+	return InitResponse{
 		Certificate: string(cert[:]),
 	}, nil
 }
