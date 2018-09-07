@@ -67,7 +67,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 	var cfg *csr.CAConfig
 	csrRequest := csr.CertificateRequest{
 		CN: details.CommonName,
-		Names: []csr.Name{csr.Name{
+		Names: []csr.Name{{
 			O: details.Group,
 		}},
 		Hosts:      details.Hosts,

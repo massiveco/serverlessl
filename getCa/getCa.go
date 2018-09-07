@@ -22,7 +22,7 @@ func Generate(store store.Store) ([]byte, error) {
 
 	csrRequest := csr.CertificateRequest{
 		CN: caCommonName,
-		Names: []csr.Name{csr.Name{
+		Names: []csr.Name{{
 			C:  caCountry,
 			L:  caCity,
 			O:  caGroup,
