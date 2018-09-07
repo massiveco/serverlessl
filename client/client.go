@@ -3,6 +3,8 @@ package client
 import (
 	"encoding/json"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -53,6 +55,7 @@ func New(cfg Config) Client {
 
 //FetchCa Request a signed certificate
 func (c Client) FetchCa() ([]byte, error) {
+	log.WithFields(log.Fields{"f": "FetchCa"}).Info("Fetching CA Certificate")
 	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slsslGetCa-" + c.config.Name)})
 	if err != nil {
 		return nil, err
@@ -63,6 +66,13 @@ func (c Client) FetchCa() ([]byte, error) {
 
 //RequestCertificate Request a signed certificate
 func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, keyPEM []byte, certPEM []byte, err error) {
+	flog := log.WithFields(log.Fields{"f": "RequestCertificate"})
+
+	flog.WithFields(log.Fields{
+		"CN":    details.CommonName,
+		"Names": details.Group,
+		"Hosts": details.Hosts,
+	}).Info("Requesting new Certificate")
 
 	var cfg *csr.CAConfig
 	csrRequest := csr.CertificateRequest{
@@ -88,6 +98,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 		return nil, nil, nil, err
 	}
 
+	flog.Debugf("Invoking Lambda: %s", *aws.String("slsslSign-" + c.config.Name))
 	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slsslSign-" + c.config.Name), Payload: req})
 	if err != nil {
 		return nil, nil, nil, err
