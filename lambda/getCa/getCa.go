@@ -30,7 +30,6 @@ func Handler(request sign.Request) (sign.Response, error) {
 	resp := sign.Response{
 		Certificate: cert,
 	}
-	log.Println(resp)
 	return resp, nil
 }
 
