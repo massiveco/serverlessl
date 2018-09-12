@@ -1,7 +1,3 @@
-
-bin/slssl:
-	go build -o bin/slssl ./cli
-
 build:
 	cd lambda/getCa && make
 	cd lambda/sign && make
