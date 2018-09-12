@@ -2,6 +2,10 @@
 bin/slssl:
 	go build -o bin/slssl ./cli
 
+build:
+	cd lambda/getCa && make
+	cd lambda/sign && make
+
 install:
 	@go get github.com/aws/aws-sdk-go
 	@go get github.com/cloudflare/cfssl/...
