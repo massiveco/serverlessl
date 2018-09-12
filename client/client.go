@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/cloudflare/cfssl/csr"
+	cfssllog "github.com/cloudflare/cfssl/log"
 	"github.com/massiveco/serverlessl/sign"
 )
 
@@ -49,6 +50,8 @@ func New(cfg Config) Client {
 		lambdaSvc: lambda.New(sharedSession, &aws.Config{Region: &cfg.Lambda.Region}),
 		config:    cfg,
 	}
+
+	cfssllog.SetLogger(NullLogger{})
 
 	return client
 }
