@@ -74,7 +74,14 @@ func (c Client) FetchCa() ([]byte, error) {
 		return nil, err
 	}
 
-	return resp.Payload, nil
+	caResp := sign.Response{}
+
+	err = json.Unmarshal(resp.Payload, &caResp)
+	if err != nil {
+		return nil, err
+	}
+	
+	return caResp.Certificate, nil
 }
 
 //RequestCertificate Request a signed certificate
