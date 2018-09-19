@@ -34,20 +34,11 @@ type Config struct {
 
 //CertificateDetails details of the request
 type CertificateDetails struct {
-	CommonName string
-	Group      string
-	Hosts      []string
+	CommonName string   `json:"common_name,omitempty"`
+	Group      string   `json:"group,omitempty"`
+	Hosts      []string `json:"hosts,omitempty"`
+	Profile    string   `json:"profile,omitempty"`
 }
-
-type NullLogger struct {
-}
-
-func (n NullLogger) Debug(string)   {}
-func (n NullLogger) Crit(string)    {}
-func (n NullLogger) Info(string)    {}
-func (n NullLogger) Warning(string) {}
-func (n NullLogger) Err(string)     {}
-func (n NullLogger) Emerg(string)   {}
 
 //New create a new client
 func New(cfg Config) Client {
@@ -80,7 +71,7 @@ func (c Client) FetchCa() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return caResp.Certificate, nil
 }
 
@@ -112,7 +103,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 	}
 	req, err := json.Marshal(sign.Request{
 		CertificateRequest: csrPEM,
-		Profile:            "sandwich",
+		Profile:            details.Profile,
 	})
 	if err != nil {
 		return nil, nil, nil, err
