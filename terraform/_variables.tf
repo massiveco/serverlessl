@@ -30,7 +30,7 @@ variable "profiles" {
         "usages": ["signing", "key encipherment", "client auth"],
         "expiry": "8760h"
       },
-      "server+client": {
+      "client_server": {
         "usages": ["signing", "key encipherment", "server auth", "client auth"],
         "expiry": "8760h"
       }
