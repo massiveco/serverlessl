@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"log"
 
 	"github.com/aws/aws-lambda-go/lambda"
@@ -10,6 +11,7 @@ import (
 )
 
 var slsslSign sign.Signer
+var profileOverride = os.Getenv("PROFILE_OVERRIDE")
 
 func init() {
 
@@ -26,9 +28,15 @@ func init() {
 // Handler processes signing requests from the serverlessl CLI
 func Handler(request sign.Request) (sign.Response, error) {
 
+	profile := request.Profile
+
+	if profileOverride != "" {
+		profile = profileOverride
+	}
+
 	cert, err := slsslSign.Sign(signer.SignRequest{
 		Request: string(request.CertificateRequest),
-		Profile: request.Profile,
+		Profile: profile,
 	})
 
 	if err != nil {
