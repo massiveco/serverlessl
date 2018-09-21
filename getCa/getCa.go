@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	caCommonName = os.Getenv("slssl_CA_NAME")
-	caGroup      = os.Getenv("slssl_CA_GROUP")
-	caCountry    = os.Getenv("slssl_CA_COUNTRY")
-	caCity       = os.Getenv("slssl_CA_CITY")
-	caState      = os.Getenv("slssl_CA_STATE")
+	caCommonName = os.Getenv("SLSSL_CA_NAME")
+	caGroup      = os.Getenv("SLSSL_CA_GROUP")
+	caCountry    = os.Getenv("SLSSL_CA_COUNTRY")
+	caCity       = os.Getenv("SLSSL_CA_CITY")
+	caState      = os.Getenv("SLSSL_CA_STATE")
 )
 
 // Generate a serverlessl CA

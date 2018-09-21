@@ -8,8 +8,8 @@ resource "aws_lambda_function" "sign" {
 
   environment {
     variables = {
-      slssl_S3_BUCKET = "${aws_s3_bucket.private.bucket}"
-      slssl_S3_PREFIX = "${var.ca_name}/"
+      SLSSL_S3_BUCKET = "${aws_s3_bucket.private.bucket}"
+      SLSSL_S3_PREFIX = "${var.ca_name}/"
     }
   }
 }
@@ -24,13 +24,13 @@ resource "aws_lambda_function" "get_ca" {
 
   environment {
     variables = {
-      slssl_S3_BUCKET     = "${aws_s3_bucket.private.bucket}"
-      slssl_S3_PREFIX     = "${var.ca_name}/"
-      slssl_CA_COMMONNAME = "${var.ca_name}"
-      slssl_CA_GROUP      = "${var.ca_name}"
-      slssl_CA_COUNTRY    = "${var.ca_country}"
-      slssl_CA_STATE      = "${var.ca_state}"
-      slssl_CA_CITY       = "${var.ca_city}"
+      SLSSL_S3_BUCKET     = "${aws_s3_bucket.private.bucket}"
+      SLSSL_S3_PREFIX     = "${var.ca_name}/"
+      SLSSL_CA_COMMONNAME = "${var.ca_name}"
+      SLSSL_CA_GROUP      = "${var.ca_name}"
+      SLSSL_CA_COUNTRY    = "${var.ca_country}"
+      SLSSL_CA_STATE      = "${var.ca_state}"
+      SLSSL_CA_CITY       = "${var.ca_city}"
     }
   }
 }
