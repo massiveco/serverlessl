@@ -8,8 +8,9 @@ resource "aws_lambda_function" "sign" {
 
   environment {
     variables = {
-      SLSSL_S3_BUCKET = "${aws_s3_bucket.private.bucket}"
-      SLSSL_S3_PREFIX = "${var.ca_name}/"
+      SLSSL_S3_BUCKET  = "${aws_s3_bucket.private.bucket}"
+      SLSSL_S3_PREFIX  = "${var.ca_name}/"
+      PROFILE_OVERRIDE = "${var.profile_override}"
     }
   }
 }
