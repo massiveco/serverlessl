@@ -165,4 +165,8 @@ resource "aws_iam_policy_attachment" "requester" {
   name       = "requester-attachment"
   roles      = ["${aws_iam_role.requester.name}"]
   policy_arn = "${aws_iam_policy.requester.arn}"
+
+  lifecycle {
+    ignore_changes = ["users"]
+  }
 }

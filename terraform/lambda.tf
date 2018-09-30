@@ -3,8 +3,8 @@ resource "aws_lambda_function" "sign" {
   function_name    = "slsslSign-${var.ca_name}"
   role             = "${aws_iam_role.sign.arn}"
   handler          = "sign"
-  source_code_hash = "${base64sha256(file("../lambda/sign/deployment.zip"))}"
   runtime          = "go1.x"
+  source_code_hash = "a97d49e9d52452886ff1b36089ca6e607bccc730d843265573c6e44a9a42c9fc"
 
   environment {
     variables = {
@@ -16,11 +16,12 @@ resource "aws_lambda_function" "sign" {
 }
 
 resource "aws_lambda_function" "get_ca" {
-  filename         = "../lambda/getCa/deployment.zip"
+  s3_bucket        = "serverlessl"
+  s3_key           = "get_ca.zip"
   function_name    = "slsslGetCa-${var.ca_name}"
   role             = "${aws_iam_role.get_ca.arn}"
   handler          = "get_ca"
-  source_code_hash = "${base64sha256(file("../lambda/getCa/deployment.zip"))}"
+  source_code_hash = "e3a07ae170086ac87653204a6a0b21928a384451b323552aa833806897b2ce6d"
   runtime          = "go1.x"
 
   environment {
