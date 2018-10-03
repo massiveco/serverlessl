@@ -30,6 +30,13 @@ resource "aws_iam_policy" "sign" {
   "Statement": [
     {
       "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "${var.s3_bucket}/${var.ca_name}*"
+    },
+    {
+      "Action": [
         "logs:CreateLogGroup",
         "logs:CreateLogStream",
         "logs:PutLogEvents"
@@ -63,6 +70,11 @@ resource "aws_iam_role" "requester" {
       },
       "Effect": "Allow",
       "Sid": ""
+    },    
+    {
+      "Effect": "Allow",
+      "Action": "lambda:InvokeFunction",
+      "Resource": "${var.lambda_ca}"
     }
   ]
 }
@@ -86,7 +98,7 @@ resource "aws_iam_policy" "requester" {
     {
       "Effect": "Allow",
       "Action": "lambda:InvokeFunction",
-      "Resource": "${var.ca_arn}"
+      "Resource": "${var.lambda_ca}"
     }
   ]
 }
