@@ -1,5 +1,5 @@
-resource "aws_iam_role" "get_ca" {
-  name = "slssl_${var.ca_name}_get_ca"
+resource "aws_iam_role" "ca" {
+  name = "slssl_${var.ca_name}_ca"
   path = "/serverlessl/"
 
   assume_role_policy = <<EOF
@@ -19,9 +19,9 @@ resource "aws_iam_role" "get_ca" {
 EOF
 }
 
-resource "aws_iam_policy" "get_ca" {
-  name        = "slssl_${var.ca_name}_get_ca"
-  description = "A policy for the serverlessl get_ca functionality"
+resource "aws_iam_policy" "ca" {
+  name        = "slssl_${var.ca_name}_ca"
+  description = "A policy for the serverlessl ca functionality"
   path        = "/serverlessl/"
 
   policy = <<EOF
@@ -49,8 +49,8 @@ resource "aws_iam_policy" "get_ca" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "get_ca" {
-  name       = "get_ca-attachment"
-  roles      = ["${aws_iam_role.get_ca.name}"]
-  policy_arn = "${aws_iam_policy.get_ca.arn}"
+resource "aws_iam_policy_attachment" "ca" {
+  name       = "ca-attachment"
+  roles      = ["${aws_iam_role.ca.name}"]
+  policy_arn = "${aws_iam_policy.ca.arn}"
 }

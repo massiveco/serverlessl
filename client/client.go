@@ -60,7 +60,7 @@ func New(cfg Config) Client {
 //FetchCa Request a signed certificate
 func (c Client) FetchCa() ([]byte, error) {
 	log.WithFields(log.Fields{"f": "FetchCa"}).Info("Fetching CA Certificate")
-	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slsslGetCa-" + c.config.Name)})
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-ca")})
 	if err != nil {
 		return nil, err
 	}
@@ -109,8 +109,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 		return nil, nil, nil, err
 	}
 
-	flog.Debugf("Invoking Lambda: %s", *aws.String("slsslSign-" + c.config.Name))
-	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slsslSign-" + c.config.Name), Payload: req})
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-sign"), Payload: req})
 	if err != nil {
 		return nil, nil, nil, err
 	}

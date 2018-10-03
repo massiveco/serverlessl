@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "sign" {
   filename         = "../lambda/sign/deployment.zip"
-  function_name    = "slsslSign-${var.ca_name}"
+  function_name    = "slssl-${var.ca_name}-sign"
   role             = "${aws_iam_role.sign.arn}"
   handler          = "sign"
   runtime          = "go1.x"
@@ -8,6 +8,7 @@ resource "aws_lambda_function" "sign" {
 
   environment {
     variables = {
+      CA_LAMBDA        = "slssl-${var.ca_name}-ca"
       SLSSL_S3_BUCKET  = "${var.s3_bucket}"
       SLSSL_S3_PREFIX  = "${var.ca_name}/"
       PROFILE_OVERRIDE = "${var.profile_override}"

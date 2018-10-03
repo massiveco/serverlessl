@@ -2,7 +2,9 @@ variable "ca_name" {
   default = "default"
 }
 
-variable "ca_arn" {}
+variable "s3_bucket" {}
+
+variable "lambda_ca" {}
 
 variable "profile_override" {
   default = ""

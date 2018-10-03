@@ -1,7 +1,7 @@
-resource "aws_lambda_function" "get_ca" {
+resource "aws_lambda_function" "ca" {
   s3_bucket        = "serverlessl"
   s3_key           = "get_ca.zip"
-  function_name    = "slsslGetCa-${var.ca_name}"
+  function_name    = "slssl-${var.ca_name}-ca"
   role             = "${aws_iam_role.get_ca.arn}"
   handler          = "get_ca"
   source_code_hash = "e3a07ae170086ac87653204a6a0b21928a384451b323552aa833806897b2ce6d"
