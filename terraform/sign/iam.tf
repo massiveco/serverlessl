@@ -1,6 +1,5 @@
-
-resource "aws_iam_role" "get_ca" {
-  name = "slssl_${var.ca_name}_get_ca"
+resource "aws_iam_role" "sign" {
+  name = "slssl_${var.ca_name}_sign"
   path = "/serverlessl/"
 
   assume_role_policy = <<EOF
@@ -20,9 +19,9 @@ resource "aws_iam_role" "get_ca" {
 EOF
 }
 
-resource "aws_iam_policy" "get_ca" {
-  name        = "slssl_${var.ca_name}_get_ca"
-  description = "A policy for the serverlessl get_ca functionality"
+resource "aws_iam_policy" "sign" {
+  name        = "slssl_${var.ca_name}_sign"
+  description = "A policy for the serverlessl Sign functionality"
   path        = "/serverlessl/"
 
   policy = <<EOF
@@ -31,10 +30,10 @@ resource "aws_iam_policy" "get_ca" {
   "Statement": [
     {
       "Action": [
-        "s3:PutObject"
+        "s3:GetObject"
       ],
       "Effect": "Allow",
-      "Resource": "${aws_s3_bucket.private.arn}/${var.ca_name}/*"
+      "Resource": "${var.s3_bucket}/${var.ca_name}*"
     },
     {
       "Action": [
@@ -50,10 +49,10 @@ resource "aws_iam_policy" "get_ca" {
 EOF
 }
 
-resource "aws_iam_policy_attachment" "get_ca" {
-  name       = "get_ca-attachment"
-  roles      = ["${aws_iam_role.get_ca.name}"]
-  policy_arn = "${aws_iam_policy.get_ca.arn}"
+resource "aws_iam_policy_attachment" "sign" {
+  name       = "sign-attachment"
+  roles      = ["${aws_iam_role.sign.name}"]
+  policy_arn = "${aws_iam_policy.sign.arn}"
 }
 
 resource "aws_iam_role" "requester" {
@@ -93,7 +92,7 @@ resource "aws_iam_policy" "requester" {
     },    {
       "Effect": "Allow",
       "Action": "lambda:InvokeFunction",
-      "Resource": "${aws_lambda_function.get_ca.arn}"
+      "Resource": "${var.ca_arn}"
     }
   ]
 }
