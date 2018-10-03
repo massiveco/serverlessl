@@ -70,11 +70,6 @@ resource "aws_iam_role" "requester" {
       },
       "Effect": "Allow",
       "Sid": ""
-    },    
-    {
-      "Effect": "Allow",
-      "Action": "lambda:InvokeFunction",
-      "Resource": "${var.lambda_ca}"
     }
   ]
 }
@@ -98,7 +93,7 @@ resource "aws_iam_policy" "requester" {
     {
       "Effect": "Allow",
       "Action": "lambda:InvokeFunction",
-      "Resource": "${var.lambda_ca}"
+      "Resource": "${var.lambda_ca_arn}"
     }
   ]
 }
