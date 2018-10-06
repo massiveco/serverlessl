@@ -1,5 +1,5 @@
 output "s3_bucket" {
-  value = "${aws_s3_bucket.private.bucket}"
+  value = "${aws_s3_bucket.private.arn}"
 }
 
 output "lambda_ca_arn" {
