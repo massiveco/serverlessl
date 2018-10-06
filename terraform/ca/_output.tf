@@ -3,5 +3,5 @@ output "s3_bucket" {
 }
 
 output "lambda_ca_arn" {
-  value = "aws_lambda_function.ca.arn"
+  value = "${aws_lambda_function.ca.arn}"
 }
