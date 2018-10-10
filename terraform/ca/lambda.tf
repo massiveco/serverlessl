@@ -1,11 +1,10 @@
 resource "aws_lambda_function" "ca" {
-  s3_bucket        = "serverlessl"
-  s3_key           = "ca.zip"
-  function_name    = "slssl-${var.ca_name}-ca"
-  role             = "${aws_iam_role.ca.arn}"
-  handler          = "get_ca"
-  source_code_hash = "NWE0MzM5MzM0ZDBhMjBmMGNhMGNmYzRjNDcxMjhiNjhjN2JhMDJiNjhlMTZlMmY5YzI3NmRhNzExNGRiMTU3Mwo="
-  runtime          = "go1.x"
+  function_name = "slssl-${var.ca_name}-ca"
+  handler       = "get_ca"
+  role          = "${aws_iam_role.ca.arn}"
+  runtime       = "go1.x"
+  s3_bucket     = "serverlessl"
+  s3_key        = "ca.zip"
 
   environment {
     variables = {
