@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "sign" {
-  function_name = "slssl-${var.ca_name}-sign"
+  function_name = "slssl-${var.ca_name}-sign-${var.profile}"
   handler       = "sign"
   role          = "${aws_iam_role.sign.arn}"
   runtime       = "go1.x"
@@ -11,7 +11,7 @@ resource "aws_lambda_function" "sign" {
       CA_LAMBDA        = "slssl-${var.ca_name}-ca"
       SLSSL_S3_BUCKET  = "${var.s3_bucket}"
       SLSSL_S3_PREFIX  = "${var.ca_name}/"
-      PROFILE_OVERRIDE = "${var.profile_override}"
+      PROFILE_OVERRIDE = "${var.profile}"
     }
   }
 }

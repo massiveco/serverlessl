@@ -1,5 +1,5 @@
 resource "aws_iam_role" "sign" {
-  name = "slssl_${var.ca_name}_sign"
+  name = "slssl_${var.ca_name}_sign_${var.profile}"
   path = "/serverlessl/"
 
   assume_role_policy = <<EOF
@@ -20,7 +20,7 @@ EOF
 }
 
 resource "aws_iam_policy" "sign" {
-  name        = "slssl_${var.ca_name}_sign"
+  name        = "slssl_${var.ca_name}_sign_${var.profile}"
   description = "A policy for the serverlessl Sign functionality"
   path        = "/serverlessl/"
 
@@ -50,13 +50,13 @@ EOF
 }
 
 resource "aws_iam_policy_attachment" "sign" {
-  name       = "sign-attachment"
+  name       = "sign-attachment-${var.profile}"
   roles      = ["${aws_iam_role.sign.name}"]
   policy_arn = "${aws_iam_policy.sign.arn}"
 }
 
 resource "aws_iam_role" "requester" {
-  name = "slssl_${var.ca_name}_requester"
+  name = "slssl_${var.ca_name}_requester_${var.profile}"
   path = "/serverlessl/"
 
   assume_role_policy = <<EOF
@@ -77,7 +77,7 @@ EOF
 }
 
 resource "aws_iam_policy" "requester" {
-  name        = "slssl_${var.ca_name}_requester"
+  name        = "slssl_${var.ca_name}_requester_${var.profile}"
   path        = "/serverlessl/"
   description = "Policies for consumers of the serverlessl lambda"
 
@@ -101,7 +101,7 @@ EOF
 }
 
 resource "aws_iam_policy_attachment" "requester" {
-  name       = "requester-attachment"
+  name       = "requester-attachment-${var.profile}"
   roles      = ["${aws_iam_role.requester.name}"]
   policy_arn = "${aws_iam_policy.requester.arn}"
 
