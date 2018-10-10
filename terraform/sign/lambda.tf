@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "sign" {
   s3_bucket        = "serverlessl"
-  s3_key           = "get_ca.zip"
+  s3_key           = "sign.zip"
   function_name    = "slssl-${var.ca_name}-sign"
   role             = "${aws_iam_role.sign.arn}"
   handler          = "sign"
   runtime          = "go1.x"
-  source_code_hash = "e3a07ae170086ac87653204a6a0b21928a384451b323552aa833806897b2ce6d"
+  source_code_hash = "Y2FiZGUzYzIyNTcwZDQ4YzVmOTRkOTlmNTQ3NDI5NWQwZGMxZmIxOGYzZDg1ZTljOTNlMzQ4ZTI1MGU1ZTllMQo="
 
   environment {
     variables = {
