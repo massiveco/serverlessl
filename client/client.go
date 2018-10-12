@@ -28,8 +28,9 @@ type LambdaConfig struct {
 
 //Config configures the lambada ca client
 type Config struct {
-	Lambda LambdaConfig
-	Name   string
+	Lambda  LambdaConfig `json:"lambda,omitempty"`
+	Name    string       `json:"name,omitempty"`
+	Profile string       `json:"profile,omitempty"`
 }
 
 //CertificateDetails details of the request
@@ -60,7 +61,7 @@ func New(cfg Config) Client {
 //FetchCa Request a signed certificate
 func (c Client) FetchCa() ([]byte, error) {
 	log.WithFields(log.Fields{"f": "FetchCa"}).Info("Fetching CA Certificate")
-	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-ca")})
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name)})
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 		return nil, nil, nil, err
 	}
 
-	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-sign"), Payload: req})
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-sign-"+ c.config.Profile), Payload: req})
 	if err != nil {
 		return nil, nil, nil, err
 	}

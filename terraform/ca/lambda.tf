@@ -1,5 +1,5 @@
 resource "aws_lambda_function" "ca" {
-  function_name = "slssl-${var.ca_name}-ca"
+  function_name = "slssl-${var.ca_name}"
   handler       = "get_ca"
   role          = "${aws_iam_role.ca.arn}"
   runtime       = "go1.x"
