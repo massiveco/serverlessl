@@ -110,7 +110,7 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 		return nil, nil, nil, err
 	}
 
-	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-sign-"+ c.config.Profile), Payload: req})
+	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name+"-"+ c.config.Profile), Payload: req})
 	if err != nil {
 		return nil, nil, nil, err
 	}
