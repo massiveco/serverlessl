@@ -35,8 +35,8 @@ func NewS3Store(httpClient *http.Client) (Store, error) {
 	}
 	return S3{
 		client: s3.New(session),
-		Prefix: os.Getenv("slssl_S3_PREFIX"),
-		Bucket: os.Getenv("slssl_S3_BUCKET"),
+		Prefix: os.Getenv("SLSSL_S3_PREFIX"),
+		Bucket: os.Getenv("SLSSL_S3_BUCKET"),
 	}, nil
 }
 
