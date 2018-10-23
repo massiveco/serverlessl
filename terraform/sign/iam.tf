@@ -33,7 +33,7 @@ resource "aws_iam_policy" "sign" {
         "s3:GetObject"
       ],
       "Effect": "Allow",
-      "Resource": "${var.s3_bucket}/${var.ca_name}*"
+      "Resource": "${var.s3_bucket_arn}/${var.ca_name}*"
     },
     {
       "Action": [
