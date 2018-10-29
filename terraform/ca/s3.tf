@@ -5,6 +5,6 @@ resource "aws_s3_bucket" "private" {
 
 resource "aws_s3_bucket_object" "ca-config" {
   bucket  = "${aws_s3_bucket.private.id}"
-  key     = "/${var.ca_name}/ca_config.json"
+  key     = "/${var.ca_name}/ca-config.json"
   content = "${var.profiles}"
 }

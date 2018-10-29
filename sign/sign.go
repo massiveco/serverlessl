@@ -3,12 +3,13 @@ package sign
 import (
 	"bytes"
 	"encoding/json"
-
+	"errors"
 	"github.com/cloudflare/cfssl/config"
 	"github.com/cloudflare/cfssl/helpers"
 	"github.com/cloudflare/cfssl/signer"
 	"github.com/cloudflare/cfssl/signer/local"
 	"github.com/massiveco/serverlessl/store"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -42,27 +43,36 @@ type SignerConfig struct {
 
 // New Signer
 func New(store store.Store) (Signer, error) {
+	log.Info("Fetching CA")
 	caPem, caKey, err := fetchCA(store)
 	if err != nil {
 		return Signer{}, err
 	}
 
+	log.Info("Parsing CA Certificate")
 	ca, err := helpers.ParseCertificatePEM(caPem)
 	if err != nil {
 		return Signer{}, err
 	}
 
+	log.Info("Parsing CA Private Key")
 	key, err := helpers.ParsePrivateKeyPEM(caKey)
 	if err != nil {
 		return Signer{}, err
 	}
 
+	log.Info("Parsing Profiles")
 	cfg, err := fetchProfiles(store)
 	if err != nil {
 		return Signer{}, err
 	}
+	if !cfg.Valid() {
+		return Signer{}, errors.New("Invalid CFG")
+	}
 
-	sign, err := local.NewSigner(key, ca, signer.DefaultSigAlgo(key), &cfg)
+	
+	log.Info("Creating local signer",cfg.Signing.Default.Expiry)
+	sign, err := local.NewSigner(key, ca, signer.DefaultSigAlgo(key), cfg.Signing)
 	if err != nil {
 		return Signer{}, err
 	}
@@ -75,7 +85,7 @@ func New(store store.Store) (Signer, error) {
 
 // Sign sign a request
 func (s Signer) Sign(req signer.SignRequest) ([]byte, error) {
-
+	log.Info("Signing request")
 	cert, err := s.signer.Sign(req)
 	if err != nil {
 		return nil, err
@@ -101,19 +111,21 @@ func fetchCA(store store.Store) (cert, key []byte, err error) {
 	return caCertBuf.Bytes(), caKeyBuf.Bytes(), nil
 }
 
-func fetchProfiles(store store.Store) (profiles config.Signing, err error) {
+func fetchProfiles(store store.Store) (cfg config.Config, err error) {
 
 	profilesBuf := new(bytes.Buffer)
 
 	err = store.FetchFile(caConfigPath, profilesBuf)
 	if err != nil {
-		return config.Signing{}, err
+		return config.Config{}, err
 	}
 
-	err = json.Unmarshal(profilesBuf.Bytes(), &profiles)
+	err = json.Unmarshal(profilesBuf.Bytes(), &cfg)
 	if err != nil {
-		return config.Signing{}, err
+		return config.Config{}, err
 	}
+	j,_ := json.Marshal(cfg) 
+	log.Info("Config", string(j[:]))
 
-	return profiles, nil
+	return cfg, nil
 }

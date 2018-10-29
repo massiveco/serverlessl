@@ -2,9 +2,6 @@ package client
 
 import (
 	"encoding/json"
-
-	log "github.com/sirupsen/logrus"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -41,6 +38,11 @@ type CertificateDetails struct {
 	Profile    string   `json:"profile,omitempty"`
 }
 
+
+func init() {
+	cfssllog.Level = cfssllog.LevelCritical
+}
+
 //New create a new client
 func New(cfg Config) Client {
 
@@ -60,7 +62,6 @@ func New(cfg Config) Client {
 
 //FetchCa Request a signed certificate
 func (c Client) FetchCa() ([]byte, error) {
-	log.WithFields(log.Fields{"f": "FetchCa"}).Info("Fetching CA Certificate")
 	resp, err := c.lambdaSvc.Invoke(&lambda.InvokeInput{FunctionName: aws.String("slssl-"+c.config.Name)})
 	if err != nil {
 		return nil, err
@@ -78,14 +79,6 @@ func (c Client) FetchCa() ([]byte, error) {
 
 //RequestCertificate Request a signed certificate
 func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, keyPEM []byte, certPEM []byte, err error) {
-	flog := log.WithFields(log.Fields{"f": "RequestCertificate"})
-
-	flog.WithFields(log.Fields{
-		"CN":    details.CommonName,
-		"Names": details.Group,
-		"Hosts": details.Hosts,
-	}).Info("Requesting new Certificate")
-
 	var cfg *csr.CAConfig
 	csrRequest := csr.CertificateRequest{
 		CN: details.CommonName,
@@ -115,7 +108,13 @@ func (c Client) RequestCertificate(details CertificateDetails) (csrPEM []byte, k
 		return nil, nil, nil, err
 	}
 
-	return csrPEM, keyPEM, resp.Payload, nil
+	crtResp := sign.Response{}
+	err = json.Unmarshal(resp.Payload, &crtResp)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return csrPEM, keyPEM, crtResp.Certificate, nil
 }
 
 func noopValidator(req *csr.CertificateRequest) error {
